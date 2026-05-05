@@ -13,17 +13,17 @@ load_dotenv()
 def get_video_transcript(video_id: str) -> str:
     """Extract transcript from YouTube video with proxy support"""
     try:
-        api = YouTubeTranscriptApi()
-        
         proxy_key = os.getenv("YOUTUBE_PROXY_KEY")
 
         # Use a free proxy
         proxies = {
-            'http': 'http://proxy.scrapeops.io:5353?api_key=YOUR_API_KEY',
-            'https': 'http://proxy.scrapeops.io:5353?api_key=YOUR_API_KEY',
+            'http': f'http://proxy.scrapeops.io:5353?api_key={proxy_key}',
+            'https': f'http://proxy.scrapeops.io:5353?api_key={proxy_key}',
         }
+
+        api = YouTubeTranscriptApi()
         
-        transcript_list = api.list(video_id=video_id).find_transcript(['en']).fetch()
+        transcript_list = api.list(video_id=video_id, proxies=proxies).find_transcript(['en']).fetch()
         transcript = " ".join(chunk.text for chunk in transcript_list)
         return transcript
     
@@ -33,17 +33,17 @@ def get_video_transcript(video_id: str) -> str:
         raise Exception(f"❌ Error: {str(e)}")
     
 
-def get_transcript(video_id: str) -> str:
-    """Fetch transcript from YouTube video"""
-    try:
-        api = YouTubeTranscriptApi()
-        transcript_list = api.list(video_id=video_id).find_transcript(['en']).fetch()
-        transcript = " ".join(chunk.text for chunk in transcript_list)
-        return transcript
-    except TranscriptsDisabled:
-        raise Exception(f"Transcripts are disabled for video: {video_id}")
-    except Exception as e:
-        raise Exception(f"Error fetching transcript: {str(e)}")
+# def get_transcript(video_id: str) -> str:
+#     """Fetch transcript from YouTube video"""
+#     try:
+#         api = YouTubeTranscriptApi()
+#         transcript_list = api.list(video_id=video_id).find_transcript(['en']).fetch()
+#         transcript = " ".join(chunk.text for chunk in transcript_list)
+#         return transcript
+#     except TranscriptsDisabled:
+#         raise Exception(f"Transcripts are disabled for video: {video_id}")
+#     except Exception as e:
+#         raise Exception(f"Error fetching transcript: {str(e)}")
 
 
 def create_chain(transcript: str):
