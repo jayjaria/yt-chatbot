@@ -6,7 +6,32 @@ from langchain_core.runnables import RunnableParallel, RunnablePassthrough, Runn
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from dotenv import load_dotenv
+import requests, os
+
 load_dotenv()
+
+def get_video_transcript(video_id: str) -> str:
+    """Extract transcript from YouTube video with proxy support"""
+    try:
+        api = YouTubeTranscriptApi()
+        
+        proxy_key = os.getenv("YOUTUBE_PROXY_KEY")
+
+        # Use a free proxy
+        proxies = {
+            'http': 'http://proxy.scrapeops.io:5353?api_key=YOUR_API_KEY',
+            'https': 'http://proxy.scrapeops.io:5353?api_key=YOUR_API_KEY',
+        }
+        
+        transcript_list = api.list(video_id=video_id).find_transcript(['en']).fetch()
+        transcript = " ".join(chunk.text for chunk in transcript_list)
+        return transcript
+    
+    except TranscriptsDisabled:
+        raise Exception(f"❌ Transcripts are disabled for this video")
+    except Exception as e:
+        raise Exception(f"❌ Error: {str(e)}")
+    
 
 def get_transcript(video_id: str) -> str:
     """Fetch transcript from YouTube video"""
