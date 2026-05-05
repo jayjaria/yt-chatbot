@@ -1,0 +1,6 @@
+.env
+__pycache__
+.streamlit
+chat_sessions.json
+*.pyc
+venv/
